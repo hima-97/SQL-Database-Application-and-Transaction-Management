@@ -57,29 +57,30 @@ If the user requests n itineraries to be returned, there are a number of possibi
   - direct=1: return up to n direct itineraries
   - direct=0: return up to n direct itineraries. If there are only k direct itineraries (where k < n), find the k direct itineraries and up to (n-k) of the shortest indirect itineraries with the flight times. Then sort the combinations of direct and indirect flights purely based on the total travel time. For one-hop flights, different carriers can be used for the flights. For the purpose of this application, an indirect itinerary means the first and second flight only must be on the same date (i.e., if flight 1 runs on the 3rd day of July, flight 2 runs on the 4th day of July, then you can't put these two flights in the same itinerary as they are not on the same day). <br>
 In all cases, the returned results should be primarily sorted by ascending total actual_time (there could be some indirect flights have less total travel time less than the direct flight).<br>
-If a tie occurs, it is broken by the fid value (i.e. use the first then the second fid for tie-breaking). <br> <br>
-Below is an example of a single direct flight from Seattle to Boston. <br>
-Notice that only the day is printed out since we assume all flights happen in July 2015: <br>
+If a tie occurs, it is broken by the fid value (i.e. use the first then the second fid for tie-breaking).
 
-```
-Itinerary 0: 1 flight(s), 297 minutes
-ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
-```
+  Below is an example of a single direct flight from Seattle to Boston. <br>
+  Notice that only the day is printed out since we assume all flights happen in July 2015: <br>
 
-Below is an example of two indirect flights from Seattle to Boston: <br>
+  ```
+  Itinerary 0: 1 flight(s), 297 minutes
+  ID: 60454 Day: 1 Carrier: AS Number: 24 Origin: Seattle WA Dest: Boston MA Duration: 297 Capacity: 14 Price: 140
+  ```
 
-```
-Itinerary 0: 2 flight(s), 317 minutes
-ID: 704749 Day: 10 Carrier: AS Number: 16 Origin: Seattle WA Dest: Orlando FL Duration: 159 Capacity: 10 Price: 494
-ID: 726309 Day: 10 Carrier: B6 Number: 152 Origin: Orlando FL Dest: Boston MA Duration: 158 Capacity: 0 Price: 104
-Itinerary 1: 2 flight(s), 317 minutes
-ID: 704749 Day: 10 Carrier: AS Number: 16 Origin: Seattle WA Dest: Orlando FL Duration: 159 Capacity: 10 Price: 494
-ID: 726464 Day: 10 Carrier: B6 Number: 452 Origin: Orlando FL Dest: Boston MA Duration: 158 Capacity: 7 Price: 760
-```
+  Below is an example of two indirect flights from Seattle to Boston: <br>
 
-Note that for one-hop flights, the results are printed in the order of the itinerary, starting from the flight leaving the origin and ending with the flight arriving at the destination. <br>
-Moreover, the user need not be logged in to search for flights. <br>
-All flights in an indirect itinerary should be under the same itinerary ID. In other words, the user should only need to book once with the itinerary ID for direct or indirect trips.
+  ```
+  Itinerary 0: 2 flight(s), 317 minutes
+  ID: 704749 Day: 10 Carrier: AS Number: 16 Origin: Seattle WA Dest: Orlando FL Duration: 159 Capacity: 10 Price: 494
+  ID: 726309 Day: 10 Carrier: B6 Number: 152 Origin: Orlando FL Dest: Boston MA Duration: 158 Capacity: 0 Price: 104
+  Itinerary 1: 2 flight(s), 317 minutes
+  ID: 704749 Day: 10 Carrier: AS Number: 16 Origin: Seattle WA Dest: Orlando FL Duration: 159 Capacity: 10 Price: 494
+  ID: 726464 Day: 10 Carrier: B6 Number: 452 Origin: Orlando FL Dest: Boston MA Duration: 158 Capacity: 7 Price: 760
+  ```
+
+  Note that for one-hop flights, the results are printed in the order of the itinerary, starting from the flight leaving the origin and ending with the flight arriving at the destination. <br>
+  Moreover, the user need not be logged in to search for flights. <br>
+  All flights in an indirect itinerary should be under the same itinerary ID. In other words, the user should only need to book once with the itinerary ID for direct or indirect trips.
 
 - book <itinerary id> <br>
 Function that lets a user book an itinerary by providing the itinerary number as returned by a previous search. <br>
@@ -88,8 +89,8 @@ Make sure you make the corresponding changes to the tables in case of a successf
 When the user logs out (by quitting the application), logs in (if they previously were not logged in), or performs another search within the same login session, then all previously returned itineraries are invalidated and cannot be booked. <br>
 A user cannot book a flight if the flight's maximum capacity would be exceeded and there should be records as to how many seats remain on each flight based on the reservations. <br>
 If booking is successful, then assign a new reservation ID to the booked itinerary. <br>
-Note that each reservation can contain up to 2 flights (in the case of indirect flights). <br>
-Note that each reservation should have a unique ID that incrementally increases by 1 for each successful booking.
+Each reservation can contain up to 2 flights (in the case of indirect flights). <br>
+Each reservation should have a unique ID that incrementally increases by 1 for each successful booking.
 
 - pay <reservation id> <br>
 Function that allows a user to pay for an existing unpaid reservation. <br>
@@ -115,16 +116,14 @@ Note: while implementing and trying out these commands, there are problems when 
 To resolve this challenge, you will need to implement transactions that ensure concurrent commands do not conflict.
 
 Note: transactions must be used correctly such that race conditions introduced by concurrent execution cannot lead to an inconsistent state of the database. <br>
-For example, multiple customers may try to book the same flight at the same time. Your properly designed transactions should prevent that.
+For example, multiple customers may try to book the same flight at the same time.
 
-Note: avoid including user interaction inside a SQL transaction (i.e. don't be in a transaction then wait for the user to decide what to do) <br>
-The rule of thumb is that transactions need to be *as short as possible, but not shorter*.
+Note: avoid including user interaction inside a SQL transaction (i.e. don't be in a transaction then wait for the user to decide what to do). The rule of thumb is that transactions need to be *as short as possible, but not shorter*.
 
 Note: when one uses a DBMS, recall that by default each statement executes in its own transaction.<br>
 This is the same when executing transactions from Python (each SQL statement will be executed as its own transaction). <br>
 
-Note: the `executeQuery` calls will throw a `SQLException` when an error occurs (e.g., multiple customers try to book the same flight concurrently). <br>
-It's important to handle such exception appropriately. For instance, if a seat is still available but the execution failed due a temporary issue such as deadlock, the booking should eventually go through (even though you might need to retry due to `SQLException`s being thrown).
+Note: the `executeQuery` calls will throw a `SQLException` when an error occurs (e.g., multiple customers try to book the same flight concurrently). It's important to handle such exception appropriately. For instance, if a seat is still available but the execution failed due a temporary issue such as deadlock, the booking should eventually go through (even though you might need to retry due to `SQLException`s being thrown).
 
 Note: each user starts concurrently in the beginning and if there are multiple output possibilities due to transactional behavior, then each group of expected output is separated with `|`.
 
