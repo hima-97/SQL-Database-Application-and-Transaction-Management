@@ -1,7 +1,7 @@
 # Project Description
 
 This project consists of the following parts:
-- Designing and implementing an SQLite database for a flight booking service
+- Design and implement an SQLite database for a flight booking service
 - Build a working prototype of the flight booking application that connects to the SQLite database and allows customers to use a CLI to search, book, cancel, etc. flights
 
 # Implementation Details
